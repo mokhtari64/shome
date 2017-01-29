@@ -3,6 +3,8 @@ package app.shome.ir.shome.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,16 +41,21 @@ public class EntityEditActivity extends SHomeActivity {
     CircleCheckBox circleCheckBox;
 
     Zone[] zones;
+    View saveName;
     Device[] devices;
     ListView lv;
-//    Button save_btn;
+
+    Button add_entity, save_entity;
+
     Zone currentZone;
     Device currentDevice;
     TextView category;
-    EditText name;
+    EditText name, entity_name;
     Spinner zoneSpinner;
     ImageView icon;
     BaseAdapter deviceAdapter, zoneAdapter;
+    LinearLayout add_entity_layout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +72,32 @@ public class EntityEditActivity extends SHomeActivity {
         setContentView(R.layout.activity_entity_edit);
 
         lv = (ListView) findViewById(R.id.entity_list);
-//        save_btn = (Button) findViewById(R.id.save);
+
         icon = (ImageView) findViewById(R.id.zone_icon);
-        circleCheckBox = (CircleCheckBox) findViewById(R.id.circle_check_box);
-        circleCheckBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
+        add_entity = (Button) findViewById(R.id.add_entity);
+        save_entity = (Button) findViewById(R.id.save_entity);
+        entity_name = (EditText) findViewById(R.id.entity_name);
+        saveName = findViewById(R.id.savename);
+        saveName.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(boolean isChecked) {
-                currentDevice.isdash=(isChecked)?1:0;
-                MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+            public void onClick(View v) {
+                if (editType.trim().equals("zone")) {
+                    currentZone.name_fa = name.getText().toString();
+                    MySqliteOpenHelper.getInstance().updateZone(currentZone);
+                    zoneAdapter.notifyDataSetChanged();
+                } else {
+                    currentDevice.name_fa = name.getText().toString();
+                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+                    deviceAdapter.notifyDataSetChanged();
+
+                }
+                saveName.setVisibility(View.GONE);
 
             }
         });
+
+        add_entity_layout = (LinearLayout) findViewById(R.id.add_entity_layer);
+        circleCheckBox = (CircleCheckBox) findViewById(R.id.circle_check_box);
 
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,54 +109,63 @@ public class EntityEditActivity extends SHomeActivity {
         });
         category = (TextView) findViewById(R.id.category);
         zoneSpinner = (Spinner) findViewById(R.id.zone_spinner);
-//        save_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String trim = name.getText().toString().trim();
-//                if (currentZone != null && trim.length() > 0) {
-//                    currentZone.name_fa = trim;
-//                    MySqliteOpenHelper.getInstance().updateZone(currentZone);
-//                    HashMap<Long, Zone> allZones = MySqliteOpenHelper.getInstance().allZones;
-//                    Collection<Zone> values = allZones.values();
-//                    zones = new Zone[values.size()];
-////                    if (zones.length > 0 && zones[0] != null) {
-////                        currentZone = zones[0];
-////                    }
-//                    values.toArray(zones);
-//                    zoneAdapter.notifyDataSetChanged();
-//                } else if (currentDevice != null && trim.length() > 0) {
-//                    currentDevice.name_fa = trim;
-//                    currentDevice.isdash = circleCheckBox.isChecked() ? 1 : 0;
-//                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
-//                    HashMap<String, Device> allDevice = MySqliteOpenHelper.getInstance().allDevice;
-//                    Collection<Device> values = allDevice.values();
-//                    devices = new Device[values.size()];
-//                    if (devices.length > 0 && devices[0] != null)
-//                        currentDevice = devices[0];
-//                    values.toArray(devices);
-//                    deviceAdapter.notifyDataSetChanged();
-//                } else if (trim.length() == 0) {
-//                    Toast toast = Toast.makeText(EntityEditActivity.this, "Name Empty", Toast.LENGTH_LONG);
-//                    toast.setGravity(Gravity.CENTER, 0, 0);
-//                    toast.show();
-//                }
-//
-//            }
-//        });
         name = (EditText) findViewById(R.id.zone_name);
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (editType.trim().equals("zone")) {
+                    if(s.toString().trim().equals(currentZone.name_fa))
+                    {
+                        saveName.setVisibility(View.GONE);
+
+                    }else
+                    {
+                        saveName.setVisibility(View.VISIBLE);
+
+                    }
+                }else
+                {
+                    if(s.toString().trim().equals(currentDevice.name_fa))
+                    {
+                        saveName.setVisibility(View.GONE);
+
+                    }else
+                    {
+                        saveName.setVisibility(View.VISIBLE);
+
+                    }
+
+                }
+
+            }
+        });
+        saveName.setVisibility(View.GONE);
         if (editType.trim().equals("zone")) {
             initZoneEdit();
             circleCheckBox.setVisibility(View.GONE);
+            add_entity_layout.setVisibility(View.VISIBLE);
         } else {
+            add_entity_layout.setVisibility(View.GONE);
             initDeviceEdit();
             circleCheckBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(boolean isChecked) {
-                    currentDevice.isdash=(isChecked)?1:0;
+                    currentDevice.isdash = (isChecked) ? 1 : 0;
                     MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
 
                 }
             });
+            deviceAdapter.notifyDataSetChanged();
         }
 
 
@@ -199,10 +231,12 @@ public class EntityEditActivity extends SHomeActivity {
                 if (currentDevice != null) {
                     currentDevice.iconRes = data1;
                     MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+                    deviceAdapter.notifyDataSetChanged();
 
                 } else if (currentZone != null) {
                     currentZone.iconRes = data1;
                     MySqliteOpenHelper.getInstance().updateZone(currentZone);
+                    zoneAdapter.notifyDataSetChanged();
 
                 }
 

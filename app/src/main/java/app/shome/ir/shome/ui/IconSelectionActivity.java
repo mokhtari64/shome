@@ -319,9 +319,12 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
     private Animator mCurrentAnimator;
     private int mShortAnimationDuration;
 
+
     private void hideImageFromThumb() {
         selected = false;
         footer.startAnimation(hide);
+
+
         if (mCurrentAnimator != null) {
             mCurrentAnimator.cancel();
         }
