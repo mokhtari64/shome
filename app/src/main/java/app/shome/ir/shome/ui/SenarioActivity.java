@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,9 +51,9 @@ public class SenarioActivity extends SHomeActivity {
     static int senario_id = 0;
     Boolean kind = false;
     String Senario_name;
-    Button add, cancel;
+    Button add, save;
     EditText name;
-    LinearLayout add_senario_layer,senaro_list_layer;
+    LinearLayout add_senario_layer, add_senario_layer2, senario_list_layer;
 
     public void reload() {
         Collection<Scenario> values = MySqliteOpenHelper.getInstance().allsScenarios.values();
@@ -64,9 +63,8 @@ public class SenarioActivity extends SHomeActivity {
         for (int i = 0; i < values.size(); i++) {
             allScenarios[i].devicesStatus = MySqliteOpenHelper.getInstance().allsScenarios.get(allScenarios[i].id).devicesStatus;
         }
-        if(currentScenario==null && allScenarios.length>0)
-        {
-            currentScenario=allScenarios[0];
+        if (currentScenario == null && allScenarios.length > 0) {
+            currentScenario = allScenarios[0];
         }
 
     }
@@ -82,8 +80,9 @@ public class SenarioActivity extends SHomeActivity {
         setContentView(R.layout.activity_senario);
         lv = (ListView) findViewById(R.id.senarioList);
         lv2 = (ListView) findViewById(R.id.senarioListDetail);
-        add_senario_layer = (LinearLayout)findViewById(R.id.senario_add_layer);
-        senaro_list_layer = (LinearLayout)findViewById(R.id.senaro_list_layer);
+        add_senario_layer = (LinearLayout) findViewById(R.id.senario_add_layer);
+        add_senario_layer2 = (LinearLayout) findViewById(R.id.senario_add_layer2);
+        senario_list_layer = (LinearLayout) findViewById(R.id.senaro_list_layer);
         scenarioAdapter = new ScenarioAdapter();
         lv.setAdapter(scenarioAdapter);
         scenariodeviceAdapter = new ScenarioDeviceAdapter();
@@ -99,46 +98,52 @@ public class SenarioActivity extends SHomeActivity {
             }
         });
         add = (Button) findViewById(R.id.add_senario);
-        cancel = (Button) findViewById(R.id.cancel_senario);
+        save = (Button) findViewById(R.id.save_senario);
         name = (EditText) findViewById(R.id.senario_name);
 
+
+        add_senario_layer2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                close();
+            }
+        });
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!kind) {
-                    expand(name);
-                    expand(cancel);
+                    app.shome.ir.shome.utils.Utils.expand(name);
+                    app.shome.ir.shome.utils.Utils.expand(save);
                     kind = true;
-                    zoom_in(add);
-                    add.setBackground(getResources().getDrawable(R.drawable.save));
+                    app.shome.ir.shome.utils.Utils.zoom_in(add);
+                    add.setBackground(getResources().getDrawable(R.drawable.back));
                     /*TransitionDrawable transition = (TransitionDrawable) add_senario_layer.getBackground();
                     transition.startTransition(AnimDuration);*/
-
-                    change_color(add_senario_layer,getResources().getColor(R.color.transparent),getResources().getColor(R.color.my_transparent_light));
-                    senaro_list_layer.animate().alpha((float) 0.1).setDuration(AnimDuration);
-                    senaro_list_layer.setEnabled(false);
+                    app.shome.ir.shome.utils.Utils.change_color(add_senario_layer, getResources().getColor(R.color.transparent), getResources().getColor(R.color.my_transparent_light));
+                    add_senario_layer2.setVisibility(View.VISIBLE);
+                    senario_list_layer.animate().alpha((float) 0.1).setDuration(AnimDuration);
 //                    overridePendingTransition(R.anim.animation_enter,
 //                            R.anim.animation_leave);
                 } else {
-                    String s = name.getText().toString();
-                    if (s.trim().length() == 0) {
-                        Toast.makeText(SenarioActivity.this, "Name empty", Toast.LENGTH_SHORT).show();
-                    } else {
 
-                        addScenario(s);
-                        name.setText("");
-                        close();
-                    }
-
+                    close();
                 }
 
             }
         });
-        cancel.setOnClickListener(new View.OnClickListener() {
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                close();
+                String s = name.getText().toString();
+                if (s.trim().length() == 0) {
+                    Toast.makeText(SenarioActivity.this, "Name empty", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    addScenario(s);
+                    name.setText("");
+                    close();
+                }
 
             }
         });
@@ -219,55 +224,16 @@ public class SenarioActivity extends SHomeActivity {
     }
 
     public void close() {
-        collapse(name);
-        collapse(cancel);
+        app.shome.ir.shome.utils.Utils.collapse(name,SenarioActivity.this);
+        app.shome.ir.shome.utils.Utils.collapse(save,SenarioActivity.this);
         kind = false;
-        zoom_out(add);
+        app.shome.ir.shome.utils.Utils.zoom_out(add);
         add.setBackground(getResources().getDrawable(R.drawable.add));
-        senaro_list_layer.animate().alpha((float) 1.0).setDuration(AnimDuration);
-        senaro_list_layer.setEnabled(true);
-        change_color(add_senario_layer,getResources().getColor(R.color.white),getResources().getColor(R.color.transparent));
+        senario_list_layer.animate().alpha((float) 1.0).setDuration(AnimDuration);
+        add_senario_layer2.setVisibility(View.INVISIBLE);
+        app.shome.ir.shome.utils.Utils.change_color(add_senario_layer, getResources().getColor(R.color.white), getResources().getColor(R.color.transparent));
     }
 
-    public void expand(final View v) {
-        float targetWidth = v.getWidth();
-        v.setX(-targetWidth);
-        v.setVisibility(View.VISIBLE);
-        v.animate().translationX(0).setDuration(Const.AnimDuration);
-    }
-
-    public void collapse(final View v) {
-        float sw = Utils.getScreenWidth(SenarioActivity.this);
-        v.animate().translationX(-sw).setDuration(Const.AnimDuration);
-    }
-
-    public void zoom_in(final View v) {
-        Animation aa = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_in);
-        aa.setDuration(Const.AnimDuration);
-        v.startAnimation(aa);
-    }
-
-    public void zoom_out(final View v) {
-        Animation aa = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoom_out);
-        aa.setDuration(Const.AnimDuration);
-        v.startAnimation(aa);
-    }
-
-    public void change_color(final View v, int colorFrom,int colorTo) {
-//        int colorFrom = getResources().getColor(R.color.transparent);
-//        int colorTo = getResources().getColor(R.color.white);
-        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-        colorAnimation.setDuration(AnimDuration);
-        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                v.setBackgroundColor((int) animator.getAnimatedValue());
-            }
-
-        });
-        colorAnimation.start();
-    }
 
 
     class ScenarioAdapter extends BaseAdapter {

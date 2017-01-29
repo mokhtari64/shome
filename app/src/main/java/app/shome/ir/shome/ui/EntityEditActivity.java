@@ -13,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -39,14 +40,16 @@ public class EntityEditActivity extends SHomeActivity {
     Zone[] zones;
     Device[] devices;
     ListView lv;
-    Button save_btn;
+    Button save_btn,add_entity,save_entity;
     Zone currentZone;
     Device currentDevice;
     TextView category;
-    EditText name;
+    EditText name,entity_name;
     Spinner zoneSpinner;
     ImageView icon;
     BaseAdapter deviceAdapter, zoneAdapter;
+    LinearLayout add_entity_layout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,10 @@ public class EntityEditActivity extends SHomeActivity {
         lv = (ListView) findViewById(R.id.entity_list);
         save_btn = (Button) findViewById(R.id.save);
         icon = (ImageView) findViewById(R.id.zone_icon);
+        add_entity=(Button)findViewById(R.id.add_entity);
+        save_entity=(Button)findViewById(R.id.save_entity);
+        entity_name=(EditText)findViewById(R.id.entity_name);
+        add_entity_layout=(LinearLayout)findViewById(R.id.add_entity_layer);
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

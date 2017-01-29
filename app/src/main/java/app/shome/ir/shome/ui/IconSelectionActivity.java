@@ -251,7 +251,7 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
     private int mShortAnimationDuration;
 
     private void zoomImageFromThumb(final View thumbView, int imageResId) {
-        // If there'allScenarios an animation in progress, cancel it immediately and
+        // If there'allScenarios an animation in progress, save it immediately and
         // proceed with this one.
         if (mCurrentAnimator != null) {
             mCurrentAnimator.cancel();
