@@ -26,6 +26,7 @@ import app.shome.ir.shome.SHomeActivity;
 import app.shome.ir.shome.db.MySqliteOpenHelper;
 import app.shome.ir.shome.db.model.Device;
 import app.shome.ir.shome.db.model.Zone;
+import app.shome.ir.shome.design.CircleCheckBox;
 
 /**
  * Created by Mahdi on 11/01/2016.
@@ -33,13 +34,13 @@ import app.shome.ir.shome.db.model.Zone;
 public class EntityEditActivity extends SHomeActivity {
 
 
-
     String editType;
+    CircleCheckBox circleCheckBox;
 
     Zone[] zones;
     Device[] devices;
     ListView lv;
-    Button save_btn;
+//    Button save_btn;
     Zone currentZone;
     Device currentDevice;
     TextView category;
@@ -63,56 +64,76 @@ public class EntityEditActivity extends SHomeActivity {
         setContentView(R.layout.activity_entity_edit);
 
         lv = (ListView) findViewById(R.id.entity_list);
-        save_btn = (Button) findViewById(R.id.save);
+//        save_btn = (Button) findViewById(R.id.save);
         icon = (ImageView) findViewById(R.id.zone_icon);
+        circleCheckBox = (CircleCheckBox) findViewById(R.id.circle_check_box);
+        circleCheckBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(boolean isChecked) {
+                currentDevice.isdash=(isChecked)?1:0;
+                MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+
+            }
+        });
+
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent a=new Intent(EntityEditActivity.this,IconSelectionActivity.class);
-                a.putExtra("type",editType);
-                startActivityForResult(a,1000);
+                Intent a = new Intent(EntityEditActivity.this, IconSelectionActivity.class);
+                a.putExtra("type", editType);
+                startActivityForResult(a, 1000);
             }
         });
         category = (TextView) findViewById(R.id.category);
         zoneSpinner = (Spinner) findViewById(R.id.zone_spinner);
-        save_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String trim = name.getText().toString().trim();
-                if (currentZone != null && trim.length() > 0) {
-                    currentZone.name_fa = trim;
-                    MySqliteOpenHelper.getInstance().updateZone(currentZone);
-                    HashMap<Long, Zone> allZones = MySqliteOpenHelper.getInstance().allZones;
-                    Collection<Zone> values = allZones.values();
-                    zones = new Zone[values.size()];
-//                    if (zones.length > 0 && zones[0] != null) {
-//                        currentZone = zones[0];
-//                    }
-                    values.toArray(zones);
-                    zoneAdapter.notifyDataSetChanged();
-                } else if (currentDevice != null && trim.length() > 0) {
-                    currentDevice.name_fa = trim;
-                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
-                    HashMap<String, Device> allDevice = MySqliteOpenHelper.getInstance().allDevice;
-                    Collection<Device> values = allDevice.values();
-                    devices = new Device[values.size()];
-                    if (devices.length > 0 && devices[0] != null)
-                        currentDevice = devices[0];
-                    values.toArray(devices);
-                    deviceAdapter.notifyDataSetChanged();
-                } else if (trim.length() == 0) {
-                    Toast toast = Toast.makeText(EntityEditActivity.this, "Name Empty", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-
-            }
-        });
+//        save_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                String trim = name.getText().toString().trim();
+//                if (currentZone != null && trim.length() > 0) {
+//                    currentZone.name_fa = trim;
+//                    MySqliteOpenHelper.getInstance().updateZone(currentZone);
+//                    HashMap<Long, Zone> allZones = MySqliteOpenHelper.getInstance().allZones;
+//                    Collection<Zone> values = allZones.values();
+//                    zones = new Zone[values.size()];
+////                    if (zones.length > 0 && zones[0] != null) {
+////                        currentZone = zones[0];
+////                    }
+//                    values.toArray(zones);
+//                    zoneAdapter.notifyDataSetChanged();
+//                } else if (currentDevice != null && trim.length() > 0) {
+//                    currentDevice.name_fa = trim;
+//                    currentDevice.isdash = circleCheckBox.isChecked() ? 1 : 0;
+//                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+//                    HashMap<String, Device> allDevice = MySqliteOpenHelper.getInstance().allDevice;
+//                    Collection<Device> values = allDevice.values();
+//                    devices = new Device[values.size()];
+//                    if (devices.length > 0 && devices[0] != null)
+//                        currentDevice = devices[0];
+//                    values.toArray(devices);
+//                    deviceAdapter.notifyDataSetChanged();
+//                } else if (trim.length() == 0) {
+//                    Toast toast = Toast.makeText(EntityEditActivity.this, "Name Empty", Toast.LENGTH_LONG);
+//                    toast.setGravity(Gravity.CENTER, 0, 0);
+//                    toast.show();
+//                }
+//
+//            }
+//        });
         name = (EditText) findViewById(R.id.zone_name);
         if (editType.trim().equals("zone")) {
             initZoneEdit();
+            circleCheckBox.setVisibility(View.GONE);
         } else {
             initDeviceEdit();
+            circleCheckBox.setListener(new CircleCheckBox.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(boolean isChecked) {
+                    currentDevice.isdash=(isChecked)?1:0;
+                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
+
+                }
+            });
         }
 
 
@@ -143,17 +164,17 @@ public class EntityEditActivity extends SHomeActivity {
     private void setCurrentDevice(Device device) {
         currentDevice = device;
         name.setText(currentDevice.name_fa);
+        if ((circleCheckBox.isChecked() && currentDevice.isdash != 1) || (!circleCheckBox.isChecked() && currentDevice.isdash == 1))
+            circleCheckBox.toggle();
         int index = java.util.Arrays.asList(zones).indexOf(currentDevice.zone);
         zoneSpinner.setSelection(index);
         if (device.category != null) {
             String name = (device.category.name_fa != null && device.category.name_fa.length() > 0) ? device.category.name_fa : device.category.name;
             category.setText(name);
         }
-        if(currentDevice.iconRes!=0)
-        {
+        if (currentDevice.iconRes != 0) {
             icon.setImageResource(currentDevice.iconRes);
-        }else
-        {
+        } else {
             icon.setImageResource(R.drawable.light2);
         }
     }
@@ -161,11 +182,9 @@ public class EntityEditActivity extends SHomeActivity {
     private void setCurrentZone(Zone z) {
         currentZone = z;
         name.setText(currentZone.name_fa);
-        if(currentZone.iconRes!=0)
-        {
+        if (currentZone.iconRes != 0) {
             icon.setImageResource(currentZone.iconRes);
-        }else
-        {
+        } else {
             icon.setImageResource(R.drawable.room2);
         }
     }
@@ -173,18 +192,17 @@ public class EntityEditActivity extends SHomeActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==1000 && resultCode==OK_STATUS)
-        {
+        if (requestCode == 1000 && resultCode == OK_STATUS) {
             int data1 = data.getExtras().getInt("data", -1);
-            if(data1!=-1)
-            {
+            if (data1 != -1) {
                 icon.setImageResource(data1);
-                if(currentDevice!=null) {
+                if (currentDevice != null) {
                     currentDevice.iconRes = data1;
+                    MySqliteOpenHelper.getInstance().updateDevice(currentDevice);
 
-                }else if(currentZone!=null)
-                {
+                } else if (currentZone != null) {
                     currentZone.iconRes = data1;
+                    MySqliteOpenHelper.getInstance().updateZone(currentZone);
 
                 }
 
@@ -258,8 +276,8 @@ public class EntityEditActivity extends SHomeActivity {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View inflate = inflater.inflate(R.layout.activity_zone_tab, null);
             TextView title = (TextView) inflate.findViewById(R.id.zonetitle);
-            ImageView imageView= (ImageView) inflate.findViewById(R.id.zone_image);
-            if(zones[position].iconRes!=0)
+            ImageView imageView = (ImageView) inflate.findViewById(R.id.zone_image);
+            if (zones[position].iconRes != 0)
                 imageView.setImageResource(zones[position].iconRes);
             title.setText(zones[position].name_fa);
             return inflate;
@@ -289,8 +307,8 @@ public class EntityEditActivity extends SHomeActivity {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View inflate = inflater.inflate(R.layout.activity_device_detail, null);
             TextView title = (TextView) inflate.findViewById(R.id.devName);
-            ImageView imageView= (ImageView) inflate.findViewById(R.id.imageView2);
-            if(devices[position].iconRes!=0)
+            ImageView imageView = (ImageView) inflate.findViewById(R.id.imageView2);
+            if (devices[position].iconRes != 0)
                 imageView.setImageResource(devices[position].iconRes);
             title.setText(devices[position].name_fa);
             return inflate;

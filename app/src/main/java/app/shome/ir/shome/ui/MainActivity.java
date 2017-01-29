@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -65,6 +66,7 @@ public class MainActivity extends SHomeActivity implements ServiceDelegate, Cons
     float orgPos1X;
     LinearLayout progress;
     LinearLayout zoneTabLayout;
+
     LinearLayout dashboard_layer;
 
     Zone currentZone = null;

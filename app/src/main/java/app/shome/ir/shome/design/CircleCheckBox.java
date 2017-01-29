@@ -211,7 +211,9 @@ public class CircleCheckBox extends MaterialCheckBox {
     }
 
     private void reset() {
+        if(mLeftPath!=null)
         mLeftPath.reset();
+        if(mRightPath!=null)
         mRightPath.reset();
     }
 
@@ -284,8 +286,10 @@ public class CircleCheckBox extends MaterialCheckBox {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
-                mDst.reset();
-                mDst.addArc(mRectF, -159, -1 * 360 * value);
+                if(mDst!=null) {
+                    mDst.reset();
+                    mDst.addArc(mRectF, -159, -1 * 360 * value);
+                }
                 invalidate();
             }
         });

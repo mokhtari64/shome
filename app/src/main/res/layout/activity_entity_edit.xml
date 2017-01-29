@@ -27,14 +27,31 @@
         android:orientation="vertical">
 
 
-        <EditText
-            android:id="@+id/zone_name"
-            style="@style/editdevzone"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@color/white"
-            android:singleLine="true"
-            android:textColor="@color/half_black" />
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textView14"
+                android:background="#f5f5f5"
+                android:gravity="center" />
+
+            <EditText
+                android:id="@+id/zone_name"
+                style="@style/editdevzone"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@color/white"
+                android:singleLine="true"
+                android:textColor="@color/half_black" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="vertical"
@@ -124,30 +141,30 @@ z
 
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/editdevzone"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_gravity="bottom"
-                android:layout_weight="1">
+            <!--<LinearLayout-->
+                <!--style="@style/editdevzone"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="0dp"-->
+                <!--android:layout_gravity="bottom"-->
+                <!--android:layout_weight="1">-->
 
-                <Button
-                    android:id="@+id/cancel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/cancel"
-                    android:text="@string/cancel" />
+                <!--<Button-->
+                    <!--android:id="@+id/cancel"-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/cancel"-->
+                    <!--android:text="@string/cancel" />-->
 
-                <Button
-                    android:id="@+id/save"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/save"
-                    android:text="@string/save" />
+                <!--<Button-->
+                    <!--android:id="@+id/save"-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/save"-->
+                    <!--android:text="@string/save" />-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
         </LinearLayout>
 
     </LinearLayout>

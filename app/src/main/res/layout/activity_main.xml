@@ -21,16 +21,19 @@
             android:orientation="horizontal">
 
             <HorizontalScrollView
+                android:id="@+id/zone_scroll"
                 android:layout_width="wrap_content"
-                android:layout_gravity="right"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                >
 
                 <LinearLayout
+                    android:layout_gravity="right"
                     android:id="@+id/zoneLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"></LinearLayout>
+                    android:orientation="horizontal"
+                    android:gravity="right"></LinearLayout>
             </HorizontalScrollView>
 
             <ImageButton

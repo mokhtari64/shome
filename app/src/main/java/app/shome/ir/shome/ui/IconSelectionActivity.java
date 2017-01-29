@@ -12,13 +12,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import app.shome.ir.shome.R;
@@ -28,9 +29,15 @@ import app.shome.ir.shome.SHomeActivity;
  * Created by Iman on 1/15/2017.
  */
 public class IconSelectionActivity extends SHomeActivity implements View.OnClickListener {
+    View currentThumb;
     ImageView expandedImageView;
     String editType;
-    View bgVIew, back, done;
+    boolean selected = false;
+    View bgVIew, back;
+    Animation hide, show;
+    LinearLayout footer;
+    ImageView done;
+    Button cancle;
     GridView gridView;
     int currentRes = -1;
     int zoneIcon[] = new int[]{R.drawable.z01,
@@ -137,10 +144,56 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
 
     };
 
+    @Override
+    public void onBackPressed() {
+        if (selected) {
+            hideImageFromThumb();
+        } else {
+            setResult(RESULT_CANCELED);
+            finish();
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (hide == null) {
+            hide = AnimationUtils.loadAnimation(this, R.anim.slide_up_2_down);
+            show = AnimationUtils.loadAnimation(this, R.anim.slide_up_2_down2);
+            show.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    footer.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    footer.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            hide.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    footer.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    footer.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+        }
         Intent intent = getIntent();
         if (intent != null) {
             Bundle extras = intent.getExtras();
@@ -151,18 +204,33 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
         if (editType == null)
             finish();
         setContentView(R.layout.activity_icon_select);
+        done = (ImageView) findViewById(R.id.done);
+        cancle = (Button) findViewById(R.id.cancel);
 
         expandedImageView = (ImageView) (this)
                 .findViewById(R.id.expanded_image);
         gridView = (GridView) findViewById(R.id.gridView);
         bgVIew = findViewById(R.id.iconbg);
+        footer = (LinearLayout) findViewById(R.id.footer);
         back = findViewById(R.id.back);
-        done = findViewById(R.id.done);
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_CANCELED);
-                finish();
+                if (selected) {
+                    hideImageFromThumb();
+                } else {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+            }
+        });
+        cancle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (selected) {
+                    hideImageFromThumb();
+                }
             }
         });
         done.setOnClickListener(new View.OnClickListener() {
@@ -194,7 +262,8 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
     public void onClick(View v) {
         int id = (Integer) v.getTag();
         currentRes = id;
-        zoomImageFromThumb(v, id);
+        currentThumb = v;
+        zoomImageFromThumb(id);
     }
 
     class GridAdapter extends BaseAdapter {
@@ -226,15 +295,16 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
                 LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 imageView = (ImageView) inflater.inflate(R.layout.icons, null);
 
+
                 imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             } else {
                 imageView = (ImageView) convertView;
             }
-            int idRes=-1;
+            int idRes = -1;
             if (editType.trim().equals("zone")) {
-                idRes=zoneIcon[position];
+                idRes = zoneIcon[position];
             } else {
-                idRes=deviceIcon[position];
+                idRes = deviceIcon[position];
             }
 
             imageView.setImageResource(idRes);
@@ -247,57 +317,83 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
     }
 
     private Animator mCurrentAnimator;
-
     private int mShortAnimationDuration;
 
-    private void zoomImageFromThumb(final View thumbView, int imageResId) {
-        // If there'allScenarios an animation in progress, cancel it immediately and
-        // proceed with this one.
+    private void hideImageFromThumb() {
+        selected = false;
+        footer.startAnimation(hide);
         if (mCurrentAnimator != null) {
             mCurrentAnimator.cancel();
         }
 
-        // Load the high-resolution "zoomed-in" image.
+        AnimatorSet set = new AnimatorSet();
+        set.play(
+                ObjectAnimator.ofFloat(expandedImageView, View.X,
+                        startBounds.left))
+                .with(ObjectAnimator.ofFloat(expandedImageView, View.Y,
+                        startBounds.top))
+                .with(ObjectAnimator.ofFloat(expandedImageView,
+                        View.SCALE_X, startScaleFinal))
+                .with(ObjectAnimator.ofFloat(expandedImageView,
+                        View.SCALE_Y, startScaleFinal));
+        set.setDuration(mShortAnimationDuration);
+        set.setInterpolator(new DecelerateInterpolator());
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                currentThumb.setAlpha(1f);
+                expandedImageView.setVisibility(View.GONE);
+                bgVIew.setVisibility(View.GONE);
+                mCurrentAnimator = null;
+            }
 
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                currentThumb.setAlpha(1f);
+                expandedImageView.setVisibility(View.GONE);
+                bgVIew.setVisibility(View.GONE);
+                mCurrentAnimator = null;
+            }
+        });
+        set.start();
+        mCurrentAnimator = set;
+    }
+
+    Rect startBounds;
+    Rect finalBounds;
+    float startScaleFinal;
+
+    private void zoomImageFromThumb(int imageResId) {
+        selected = true;
+        footer.startAnimation(show);
+
+        if (mCurrentAnimator != null) {
+            mCurrentAnimator.cancel();
+        }
         expandedImageView.setImageResource(imageResId);
 
-        // Calculate the starting and ending bounds for the zoomed-in image.
-        // This step
-        // involves lots of math. Yay, math.
-        final Rect startBounds = new Rect();
-        final Rect finalBounds = new Rect();
+        startBounds = new Rect();
+        finalBounds = new Rect();
         final Point globalOffset = new Point();
 
-        // The start bounds are the global visible rectangle of the thumbnail,
-        // and the
-        // final bounds are the global visible rectangle of the container view.
-        // Also
-        // set the container view'allScenarios offset as the origin for the bounds, since
-        // that'allScenarios
-        // the origin for the positioning animation properties (X, Y).
-        thumbView.getGlobalVisibleRect(startBounds);
+        currentThumb.getGlobalVisibleRect(startBounds);
         findViewById(R.id.container)
                 .getGlobalVisibleRect(finalBounds, globalOffset);
         startBounds.offset(-globalOffset.x, -globalOffset.y);
         finalBounds.offset(-globalOffset.x, -globalOffset.y);
 
-        // Adjust the start bounds to be the same aspect ratio as the final
-        // bounds using the
-        // "center crop" technique. This prevents undesirable stretching during
-        // the animation.
-        // Also calculate the start scaling factor (the end scaling factor is
-        // always 1.0).
+
         float startScale;
         if ((float) finalBounds.width() / finalBounds.height() > (float) startBounds
                 .width() / startBounds.height()) {
-            // Extend start bounds horizontally
+
             startScale = (float) startBounds.height() / finalBounds.height();
             float startWidth = startScale * finalBounds.width();
             float deltaWidth = (startWidth - startBounds.width()) / 2;
             startBounds.left -= deltaWidth;
             startBounds.right += deltaWidth;
         } else {
-            // Extend start bounds vertically
+
             startScale = (float) startBounds.width() / finalBounds.width();
             float startHeight = startScale * finalBounds.height();
             float deltaHeight = (startHeight - startBounds.height()) / 2;
@@ -308,7 +404,7 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
         // Hide the thumbnail and show the zoomed-in view. When the animation
         // begins,
         // it will position the zoomed-in view in the place of the thumbnail.
-        thumbView.setAlpha(0f);
+        currentThumb.setAlpha(0f);
         expandedImageView.setVisibility(View.VISIBLE);
         bgVIew.setVisibility(View.VISIBLE);
 
@@ -347,53 +443,15 @@ public class IconSelectionActivity extends SHomeActivity implements View.OnClick
         set.start();
         mCurrentAnimator = set;
 
-        // Upon clicking the zoomed-in image, it should zoom back down to the
-        // original bounds
-        // and show the thumbnail instead of the expanded image.
-        final float startScaleFinal = startScale;
+        startScaleFinal = startScale;
         expandedImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mCurrentAnimator != null) {
-                    mCurrentAnimator.cancel();
-                }
+                hideImageFromThumb();
 
-                // Animate the four positioning/sizing properties in parallel,
-                // back to their
-                // original values.
-                AnimatorSet set = new AnimatorSet();
-                set.play(
-                        ObjectAnimator.ofFloat(expandedImageView, View.X,
-                                startBounds.left))
-                        .with(ObjectAnimator.ofFloat(expandedImageView, View.Y,
-                                startBounds.top))
-                        .with(ObjectAnimator.ofFloat(expandedImageView,
-                                View.SCALE_X, startScaleFinal))
-                        .with(ObjectAnimator.ofFloat(expandedImageView,
-                                View.SCALE_Y, startScaleFinal));
-                set.setDuration(mShortAnimationDuration);
-                set.setInterpolator(new DecelerateInterpolator());
-                set.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        thumbView.setAlpha(1f);
-                        expandedImageView.setVisibility(View.GONE);
-                        bgVIew.setVisibility(View.GONE);
-                        mCurrentAnimator = null;
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-                        thumbView.setAlpha(1f);
-                        expandedImageView.setVisibility(View.GONE);
-                        bgVIew.setVisibility(View.GONE);
-                        mCurrentAnimator = null;
-                    }
-                });
-                set.start();
-                mCurrentAnimator = set;
             }
         });
     }
+
 
 }

@@ -301,13 +301,12 @@ public class MySqliteOpenHelper extends SQLiteOpenHelper implements Const {
     public void updateDevice(Device device) {
         Zone z=device.zone;
         if(device.name_fa!=null) {
-            String query = "update " + deviceTableName + "  set  icon="+device.iconRes+",status='" + device.status + "'" +
+            String query = "update " + deviceTableName + "  set  isdash="+device.isdash+",icon="+device.iconRes+",status='" + device.status + "'" +
                     ",name_fa='" + device.name_fa + "',zoneid="+((z==null)?0:device.zone.id)+" where id=" + device.id;
             getWritableDatabase().execSQL(query);
         }else
         {
-
-            String query = "update " + deviceTableName + "  set icon="+device.iconRes+",status='" + device.status + "',zoneid="+((z==null)?0:device.zone.id)+" where id=" + device.id;
+            String query = "update " + deviceTableName + "  set isdash="+device.isdash+",icon="+device.iconRes+",status='" + device.status + "',zoneid="+((z==null)?0:device.zone.id)+" where id=" + device.id;
             getWritableDatabase().execSQL(query);
         }
 
