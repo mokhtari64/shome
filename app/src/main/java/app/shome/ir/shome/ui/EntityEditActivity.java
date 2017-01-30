@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ import app.shome.ir.shome.db.MySqliteOpenHelper;
 import app.shome.ir.shome.db.model.Device;
 import app.shome.ir.shome.db.model.Zone;
 import app.shome.ir.shome.design.CircleCheckBox;
+import app.shome.ir.shome.utils.Utils;
 
 /**
  * Created by Mahdi on 11/01/2016.
@@ -45,8 +47,8 @@ public class EntityEditActivity extends SHomeActivity {
     Device[] devices;
     ListView lv;
 
-    Button add_entity, save_entity;
-
+    Button add, save;
+    Boolean kind = false;
     Zone currentZone;
     Device currentDevice;
     TextView category;
@@ -54,8 +56,7 @@ public class EntityEditActivity extends SHomeActivity {
     Spinner zoneSpinner;
     ImageView icon;
     BaseAdapter deviceAdapter, zoneAdapter;
-    LinearLayout add_entity_layout;
-
+    LinearLayout add_entity_layout,detail, add_entity_layout2,entity_list_layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +75,8 @@ public class EntityEditActivity extends SHomeActivity {
         lv = (ListView) findViewById(R.id.entity_list);
 
         icon = (ImageView) findViewById(R.id.zone_icon);
-        add_entity = (Button) findViewById(R.id.add_entity);
-        save_entity = (Button) findViewById(R.id.save_entity);
+        add = (Button) findViewById(R.id.add_entity);
+        save = (Button) findViewById(R.id.save_entity);
         entity_name = (EditText) findViewById(R.id.entity_name);
         saveName = findViewById(R.id.savename);
         saveName.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +98,59 @@ public class EntityEditActivity extends SHomeActivity {
         });
 
         add_entity_layout = (LinearLayout) findViewById(R.id.add_entity_layer);
+        detail = (LinearLayout) findViewById(R.id.detail);
+        add_entity_layout2 = (LinearLayout) findViewById(R.id.add_entity_layer2);
+        entity_list_layout = (LinearLayout) findViewById(R.id.entity_list_layout);
         circleCheckBox = (CircleCheckBox) findViewById(R.id.circle_check_box);
+        add_entity_layout2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                close();
+            }
+        });
+
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!kind) {
+                    app.shome.ir.shome.utils.Utils.expand(name);
+                    app.shome.ir.shome.utils.Utils.expand(save);
+                    kind = true;
+                    app.shome.ir.shome.utils.Utils.zoom_in(add);
+                    add.setBackground(getResources().getDrawable(R.drawable.back));
+                    /*TransitionDrawable transition = (TransitionDrawable) add_senario_layer.getBackground();
+                    transition.startTransition(AnimDuration);*/
+                    app.shome.ir.shome.utils.Utils.change_color(add_entity_layout, getResources().getColor(R.color.transparent), getResources().getColor(R.color.my_transparent_light));
+                    add_entity_layout2.setVisibility(View.VISIBLE);
+                    detail.animate().alpha((float) 0.1).setDuration(AnimDuration);
+                    entity_list_layout.animate().alpha((float) 0.1).setDuration(AnimDuration);
+
+//                    overridePendingTransition(R.anim.animation_enter,
+//                            R.anim.animation_leave);
+                } else {
+
+                    close();
+                }
+
+            }
+        });
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = name.getText().toString();
+                if (s.trim().length() == 0) {
+                    Toast.makeText(EntityEditActivity.this, "Name empty", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    name.setText("");
+                    close();
+                }
+
+            }
+        });
+
+
 
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,6 +222,19 @@ public class EntityEditActivity extends SHomeActivity {
         }
 
 
+    }
+
+
+    public void close() {
+        app.shome.ir.shome.utils.Utils.collapse(name,EntityEditActivity.this);
+        app.shome.ir.shome.utils.Utils.collapse(save,EntityEditActivity.this);
+        kind = false;
+        app.shome.ir.shome.utils.Utils.zoom_out(add);
+        add.setBackground(getResources().getDrawable(R.drawable.add));
+        entity_list_layout.animate().alpha((float) 1.0).setDuration(AnimDuration);
+        detail.animate().alpha((float) 1.0).setDuration(AnimDuration);
+        add_entity_layout2.setVisibility(View.INVISIBLE);
+        app.shome.ir.shome.utils.Utils.change_color(add_entity_layout, getResources().getColor(R.color.my_transparent_light), getResources().getColor(R.color.transparent));
     }
 
     private void initZoneEdit() {

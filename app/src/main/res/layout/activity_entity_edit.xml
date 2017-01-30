@@ -158,9 +158,26 @@ z
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:gravity="right"
+        android:layout_gravity="right"
+        android:layout_marginTop="60dp"
+        android:id="@+id/entity_list_layout">
+
+        <ListView
+            android:id="@+id/entity_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -171,7 +188,7 @@ z
             android:id="@+id/add_entity_layer"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="0dp">
+            android:layout_marginTop="0dp" >
 
             <Button
                 android:layout_width="60dp"
@@ -182,7 +199,7 @@ z
                 android:scaleType="fitXY"
                 android:adjustViewBounds="true"
                 android:visibility="invisible"
-                android:background="@drawable/back"
+                android:background="@drawable/save"
                 android:backgroundTint="@color/white" />
 
             <EditText
@@ -204,34 +221,15 @@ z
                 android:backgroundTint="@color/white" />
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/add_entity_layer2"
+            android:visibility="invisible"
+            android:layout_below="@+id/add_entity_layer"></LinearLayout>
 
-            <LinearLayout
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="right"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_alignParentRight="true">
-
-                <ListView
-                    android:id="@+id/entity_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_horizontal" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/linearLayout3" />
-
-        </RelativeLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </FrameLayout>
