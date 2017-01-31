@@ -1,6 +1,7 @@
 package app.shome.ir.shome.db.model;
 
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.Vector;
 
@@ -14,6 +15,7 @@ public class Zone {
     public int iconRes=0;
     public Vector<Device> devices = new Vector<>();
     public ImageView imageView;
+    public TextView textView;
 
     @Override
     public boolean equals(Object o) {

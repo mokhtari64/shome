@@ -1,5 +1,6 @@
 package app.shome.ir.shome.ui;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,7 +63,8 @@ import app.shome.ir.shome.service.ServiceDelegate;
 import app.shome.ir.shome.service.Services;
 import app.shome.ir.shome.utils.YearMonthDate;
 
-public class MainActivity extends SHomeActivity implements ServiceDelegate, Const, OnClickListener {
+public class
+MainActivity extends SHomeActivity implements ServiceDelegate, Const, OnClickListener {
     ImageView add;
     float orgPos1X;
     LinearLayout progress;
@@ -341,11 +344,14 @@ public class MainActivity extends SHomeActivity implements ServiceDelegate, Cons
         Collection<Zone> values = MySqliteOpenHelper.getInstance().allZones.values();
         for (Zone z : values) {
             View inflate = inflater.inflate(R.layout.activity_zone_tab, null);
-            TextView zonetitle = (TextView) inflate.findViewById(R.id.zonetitle);
-            zonetitle.setText(z.name_fa);
+            z.textView = (TextView)inflate.findViewById(R.id.zonetitle);
+//            TextView zonetitle = (TextView) inflate.findViewById(R.id.zonetitle);
+//            zonetitle.setText(z.name_fa);
+            z.textView.setText(z.name_fa);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 86, getResources().getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 62, getResources().getDisplayMetrics()));
             params.leftMargin = 2;
             z.imageView = (ImageView) inflate.findViewById(R.id.zone_image);
+
             if (z.iconRes != 0) {
                 z.imageView.setImageResource(z.iconRes);
             }
@@ -355,7 +361,7 @@ public class MainActivity extends SHomeActivity implements ServiceDelegate, Cons
 
             inflate.setLayoutParams(params);
             inflate.setTag(z);
-
+            z.textView.setGravity(Gravity.CENTER_HORIZONTAL);
             zoneTabLayout.addView(inflate);
             inflate.setOnClickListener(this);
 
@@ -375,6 +381,16 @@ public class MainActivity extends SHomeActivity implements ServiceDelegate, Cons
     private void setCurrentZone(Zone z) {
         if (currentZone != null) {
             currentZone.imageView.setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.SRC_ATOP);
+            currentZone.imageView.animate().scaleX(1).setDuration(AnimDuration);
+            currentZone.imageView.animate().scaleY(1).setDuration(AnimDuration);
+//            currentZone.textView.setGravity(Gravity.CENTER );
+//            currentZone.textView.animate().rotation(0).setDuration(AnimDuration);
+            currentZone.textView.setTextColor(Color.GREEN);
+//            currentZone.textView.animate().x(0).setDuration(AnimDuration);
+            currentZone.textView.animate().y(0).setDuration(AnimDuration);
+            currentZone.textView.animate().scaleX(1).setDuration(AnimDuration);
+            currentZone.textView.animate().scaleY(1).setDuration(AnimDuration);
+            app.shome.ir.shome.utils.Utils.change_color(currentZone.textView, getResources().getColor(R.color.my_orange), getResources().getColor(R.color.transparent));
         }
 
 
@@ -392,8 +408,31 @@ public class MainActivity extends SHomeActivity implements ServiceDelegate, Cons
 
         if (currentZone != null) {
             currentZone.imageView.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_ATOP);
-
+            currentZone.imageView.animate().scaleX(0.85f).setDuration(AnimDuration);
+            currentZone.imageView.animate().scaleY(0.85f).setDuration(AnimDuration);
+//            currentZone.textView.setGravity(Gravity.TOP |Gravity.RIGHT);
+//            currentZone.textView.setGravity(Gravity.CENTER);
+//            currentZone.textView.animate().rotation(45).setDuration(AnimDuration);
+            currentZone.textView.setTextColor(Color.WHITE);
+//            currentZone.textView.animate().x(15).setDuration(AnimDuration);
+            currentZone.textView.animate().y(30).setDuration(AnimDuration);
+            currentZone.textView.animate().scaleX(0.8f).setDuration(AnimDuration);
+            currentZone.textView.animate().scaleY(0.8f).setDuration(AnimDuration);
+//            currentZone.textView.setBackgroundColor(Color.TRANSPARENT);
+//            currentZone.textView.setTextColor(Color.RED);
+            app.shome.ir.shome.utils.Utils.change_color(currentZone.textView, getResources().getColor(R.color.transparent), getResources().getColor(R.color.my_orange));
         }
+    }
+
+
+    private int blendColors(int from, int to, float ratio) {
+        final float inverseRatio = 1f - ratio;
+
+        final float r = Color.red(to) * ratio + Color.red(from) * inverseRatio;
+        final float g = Color.green(to) * ratio + Color.green(from) * inverseRatio;
+        final float b = Color.blue(to) * ratio + Color.blue(from) * inverseRatio;
+
+        return Color.rgb((int) r, (int) g, (int) b);
     }
 
     @Override
